@@ -5,169 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LingoTorah | Hebrew & Aramaic Lexicon</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #3498db;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #1e293b;
-            --border: #e2e8f0;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 700px;
-            margin-top: 40px;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin: 0;
-            letter-spacing: -1px;
-        }
-
-        p.subtitle {
-            color: #64748b;
-            margin-top: 5px;
-        }
-
-        .search-card {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            gap: 10px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 15px 20px;
-            font-size: 1.2rem;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            outline: none;
-            transition: border-color 0.2s;
-            direction: rtl;
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--accent);
-        }
-
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0 25px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.1s, background 0.2s;
-        }
-
-        button:hover {
-            background: #1a252f;
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        #results {
-            margin-top: 30px;
-            display: none;
-        }
-
-        .section-title {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #94a3b8;
-            margin-bottom: 15px;
-            display: block;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 5px;
-        }
-
-        .dict-entry {
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--accent);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-
-        .dict-name {
-            font-weight: bold;
-            color: var(--accent);
-            font-size: 0.8rem;
-        }
-
-        .source-card {
-            background: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-            transition: background 0.2s;
-        }
-
-        .source-card:hover {
-            background: #f1f5f9;
-        }
-
-        .source-link {
-            text-decoration: none;
-            color: var(--primary);
-            font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .source-text {
-            display: block;
-            margin-top: 8px;
-            font-size: 1.1rem;
-            color: #475569;
-            direction: rtl;
-            line-height: 1.6;
-        }
-
-        .loading-spinner {
-            text-align: center;
-            padding: 20px;
-            color: #64748b;
-            font-style: italic;
-        }
-
-        .arrow-icon {
-            font-size: 0.8rem;
-            opacity: 0.5;
-        }
+        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; padding: 20px; }
+        .app-container { width: 100%; max-width: 700px; margin-top: 20px; }
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 2.2rem; color: var(--primary); margin: 0; letter-spacing: -1px; }
+        p.subtitle { color: #64748b; margin-top: 5px; }
+        .search-card { background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        .input-wrapper { display: flex; gap: 10px; flex-wrap: wrap; }
+        input[type="text"] { flex: 1; min-width: 200px; padding: 15px; font-size: 1.2rem; border: 2px solid var(--border); border-radius: 12px; outline: none; direction: rtl; }
+        input[type="text"]:focus { border-color: var(--accent); }
+        button { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #1a252f; }
+        #results { margin-top: 30px; display: none; }
+        .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 15px; display: block; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .dict-entry { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .dict-name { font-weight: bold; color: var(--accent); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; }
+        .source-card { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .source-link { text-decoration: none; color: var(--primary); font-weight: 700; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        .source-text { display: block; margin-top: 8px; font-size: 1.1rem; color: #475569; direction: rtl; line-height: 1.6; }
+        .loading { text-align: center; padding: 20px; color: #64748b; }
     </style>
 </head>
 <body>
@@ -183,7 +40,7 @@
             <input type="text" id="wordInput" placeholder="...הקלד מילה" autocomplete="off">
             <button onclick="handleSearch()">Search</button>
         </div>
-        <div id="status" style="margin-top: 10px; font-size: 0.8rem; color: #94a3b8; text-align: center;"></div>
+        <div id="status" style="margin-top: 12px; font-size: 0.85rem; color: #64748b; text-align: center;"></div>
     </div>
 
     <div id="results">
@@ -202,85 +59,90 @@
     const dictOutput = document.getElementById('dictOutput');
     const sourceOutput = document.getElementById('sourceOutput');
 
-    // Allow pressing "Enter" to search
-    wordInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") handleSearch();
-    });
+    wordInput.addEventListener("keypress", (e) => { if (e.key === "Enter") handleSearch(); });
 
     async function handleSearch() {
         const query = wordInput.value.trim();
         if (!query) return;
 
-        // Reset UI
-        status.innerText = "Searching Sefaria & Jastrow...";
+        status.innerText = "Searching...";
         resultsArea.style.display = "block";
-        dictOutput.innerHTML = '<div class="loading-spinner">Fetching definitions...</div>';
-        sourceOutput.innerHTML = '<div class="loading-spinner">Locating sources...</div>';
+        dictOutput.innerHTML = '<div class="loading">Fetching definitions...</div>';
+        sourceOutput.innerHTML = '<div class="loading">Locating sources...</div>';
 
         try {
-            await Promise.all([
-                fetchDictionary(query),
-                fetchSources(query)
-            ]);
-            status.innerText = "Search complete.";
-        } catch (error) {
-            status.innerText = "An error occurred. Please try again.";
-            console.error(error);
+            await Promise.all([fetchDictionary(query), fetchSources(query)]);
+            status.innerText = "";
+        } catch (e) {
+            status.innerText = "Connection error. Try again.";
         }
     }
 
     async function fetchDictionary(word) {
-        const res = await fetch(`https://www.sefaria.org/api/words/${encodeURIComponent(word)}`);
-        const data = await res.json();
-        
-        if (!data || data.length === 0) {
-            dictOutput.innerHTML = "<p>No dictionary entries found.</p>";
-            return;
-        }
+        try {
+            const res = await fetch(`https://www.sefaria.org/api/words/${encodeURIComponent(word)}`);
+            const data = await res.json();
+            
+            if (!data || data.length === 0) {
+                dictOutput.innerHTML = "<p>No entries found.</p>";
+                return;
+            }
 
-        dictOutput.innerHTML = data.map(entry => `
-            <div class="dict-entry">
-                <div class="dict-name">${entry.lexicon_name}</div>
-                <div style="font-size: 1.2rem; margin: 5px 0;"><strong>${entry.headword}</strong></div>
-                <div style="line-height: 1.4; color: #475569;">
-                    ${entry.content.definition || "No definition snippet available."}
-                </div>
-            </div>
-        `).join('');
+            dictOutput.innerHTML = data.map(entry => {
+                // Dig for definition text
+                let definition = "No definition available.";
+                if (typeof entry.content === 'string') {
+                    definition = entry.content;
+                } else if (entry.content?.definition) {
+                    definition = entry.content.definition;
+                } else if (entry.content?.senses?.[0]?.definition) {
+                    definition = entry.content.senses[0].definition;
+                } else if (entry.content?.bases?.[0]) {
+                    definition = `Related to: ${entry.content.bases[0]}`;
+                }
+
+                return `
+                    <div class="dict-entry">
+                        <div class="dict-name">${entry.lexicon_name || 'Lexicon'}</div>
+                        <div style="font-size: 1.3rem; margin-bottom: 8px;"><strong>${entry.headword}</strong></div>
+                        <div style="line-height: 1.5; color: #334155;">${definition}</div>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) { dictOutput.innerHTML = "Error loading dictionary."; }
     }
 
     async function fetchSources(word) {
-        const res = await fetch('https://www.sefaria.org/api/search-wrapper', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: word, type: "text", size: 8 })
-        });
-        const data = await res.json();
+        try {
+            const res = await fetch('https://www.sefaria.org/api/search-wrapper', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: word, type: "text", size: 6 })
+            });
+            const data = await res.json();
 
-        if (!data.hits || data.hits.hits.length === 0) {
-            sourceOutput.innerHTML = "<p>No matches found in the library.</p>";
-            return;
-        }
+            if (!data.hits?.hits?.length) {
+                sourceOutput.innerHTML = "<p>No textual matches found.</p>";
+                return;
+            }
 
-        sourceOutput.innerHTML = data.hits.hits.map(hit => {
-            const ref = hit._source.ref;
-            const url = `https://www.sefaria.org/${ref.replace(/ /g, "_")}`;
-            const snippet = hit.highlight && hit.highlight.exact 
-                ? hit.highlight.exact.join(' ... ') 
-                : (hit._source.text || "View full text");
+            sourceOutput.innerHTML = data.hits.hits.map(hit => {
+                const ref = hit._source.ref;
+                const url = `https://www.sefaria.org/${ref.replace(/ /g, "_")}`;
+                const snippet = hit.highlight?.exact?.join(' ... ') || hit._source.text || "View full text";
 
-            return `
-                <div class="source-card">
-                    <a href="${url}" target="_blank" class="source-link">
-                        <span>${ref}</span>
-                        <span class="arrow-icon">OPEN IN SEFARIA ↗</span>
-                    </a>
-                    <span class="source-text">${snippet}</span>
-                </div>
-            `;
-        }).join('');
+                return `
+                    <div class="source-card">
+                        <a href="${url}" target="_blank" class="source-link">
+                            <span>${ref}</span>
+                            <span style="color: var(--accent);">VIEW ↗</span>
+                        </a>
+                        <span class="source-text">${snippet}</span>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) { sourceOutput.innerHTML = "Error loading sources."; }
     }
 </script>
-
 </body>
 </html>
