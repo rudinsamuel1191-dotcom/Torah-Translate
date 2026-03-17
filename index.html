@@ -3,222 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sefaria & Jastrow Translator</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <title>LingoTorah | Holy Language Translator</title>
     <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #3b82f6;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #334155;
+            --border: #e2e8f0;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
             padding: 20px;
+            line-height: 1.6;
         }
-        h1 {
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        header {
             text-align: center;
-            color: #2c3e50;
+            margin-bottom: 40px;
         }
-        .card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -1.5px;
         }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-top: 8px;
+        }
+
+        /* Search Section */
+        .search-area {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
         input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            font-size: 18px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            direction: rtl; /* Right-to-left for Hebrew */
+            flex: 1;
+            min-width: 280px;
+            padding: 16px 20px;
+            font-size: 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            outline: none;
+            transition: all 0.2s;
+            direction: rtl; /* Hebrew friendly */
         }
-        button, label.upload-btn {
-            background-color: #007bff;
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        button {
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 15px;
-            font-size: 16px;
-            border-radius: 4px;
+            padding: 16px 32px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
             cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        button:hover { background: #0f172a; }
+        button:active { transform: scale(0.98); }
+
+        /* Results Styling */
+        #results { display: none; }
+
+        .section-header {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #94a3b8;
+            margin: 40px 0 20px 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+            margin-left: 15px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+
+        .dict-badge {
             display: inline-block;
-            text-align: center;
-            margin-right: 5px;
-            text-decoration: none;
+            background: #eff6ff;
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 12px;
         }
-        button:hover, label.upload-btn:hover {
-            background-color: #0056b3;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        .status {
-            font-size: 14px;
-            color: #666;
-            margin-top: 10px;
-            font-style: italic;
-        }
-        .result-section {
-            margin-top: 20px;
-            display: none;
-        }
-        h3 {
-            border-bottom: 2px solid #eee;
-            padding-bottom: 5px;
-            color: #34495e;
-        }
-        .source-item {
+
+        .word-title {
+            font-size: 1.5rem;
+            font-weight: 800;
             margin-bottom: 10px;
-            padding: 10px;
-            background: #fdfdfd;
-            border-left: 4px solid #007bff;
+            color: var(--primary);
         }
+
+        .source-card {
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .source-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .ref-tag {
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .snippet {
+            display: block;
+            margin-top: 10px;
+            font-size: 1.15rem;
+            color: #475569;
+            direction: rtl;
+        }
+
+        #status {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 15px;
+        }
+
+        .loading-text { text-align: center; padding: 40px; color: #94a3b8; font-style: italic; }
     </style>
 </head>
 <body>
 
-    <h1>Hebrew/Aramaic Translator</h1>
+<div class="container">
+    <header>
+        <h1>LingoTorah</h1>
+        <p class="subtitle">Deep Translation & Torah Source Finder</p>
+    </header>
 
-    <div class="card">
-        <input type="text" id="searchInput" placeholder="Enter Hebrew or Aramaic word...">
-        
-        <div>
-            <button onclick="performSearch()">Translate & Find</button>
-            <label class="upload-btn">
-                Scan Photo
-                <input type="file" accept="image/*" capture="environment" id="imageInput" onchange="processImage(event)">
-            </label>
+    <div class="search-area">
+        <div class="input-group">
+            <input type="text" id="wordInput" placeholder="Type Hebrew/Aramaic word or sentence..." autocomplete="off">
+            <button onclick="handleSearch()">Search</button>
         </div>
-        
-        <div id="statusMessage" class="status"></div>
+        <div id="status"></div>
     </div>
 
-    <div id="results" class="card result-section">
-        <h3>Dictionary Translation</h3>
-        <div id="translationOutput"></div>
+    <div id="results">
+        <div class="section-header">Dictionary & Lexicon</div>
+        <div id="dictOutput"></div>
 
-        <h3>Sources in Torah/Talmud</h3>
-        <div id="sourcesOutput"></div>
+        <div class="section-header">Biblical & Talmudic Sources</div>
+        <div id="sourceOutput"></div>
     </div>
+</div>
 
-    <script>
-        // 1. Photo Scanning Logic (OCR)
-        async function processImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+<script>
+    const wordInput = document.getElementById('wordInput');
+    const status = document.getElementById('status');
+    const resultsArea = document.getElementById('results');
+    const dictOutput = document.getElementById('dictOutput');
+    const sourceOutput = document.getElementById('sourceOutput');
 
-            const status = document.getElementById('statusMessage');
-            status.innerText = "Scanning image for Hebrew text... Please wait.";
+    // Enter key support
+    wordInput.addEventListener("keypress", (e) => { if (e.key === "Enter") handleSearch(); });
 
-            try {
-                // Initialize Tesseract with Hebrew ('heb')
-                const result = await Tesseract.recognize(file, 'heb', {
-                    logger: m => console.log(m) // Logs progress to browser console
-                });
-                
-                // Clean up the text and put it in the search bar
-                const extractedText = result.data.text.trim().split(/\s+/)[0]; // Grabs the first word for simplicity
-                document.getElementById('searchInput').value = extractedText;
-                status.innerText = "Scan complete! Review the word and click Translate.";
-            } catch (error) {
-                console.error(error);
-                status.innerText = "Error scanning image. Please try again.";
-            }
+    async function handleSearch() {
+        const query = wordInput.value.trim();
+        if (!query) return;
+
+        status.innerText = "Searching the archives...";
+        resultsArea.style.display = "block";
+        dictOutput.innerHTML = '<div class="loading-text">Consulting Jastrow & Lexicons...</div>';
+        sourceOutput.innerHTML = '<div class="loading-text">Searching Torah & Talmud...</div>';
+
+        try {
+            // We run both searches at the same time for speed
+            await Promise.all([
+                fetchDictionary(query),
+                fetchSources(query)
+            ]);
+            status.innerText = "";
+        } catch (e) {
+            status.innerText = "Connection error. Please try again.";
         }
+    }
 
-        // 2. Search Logic (Triggered by button)
-        async function performSearch() {
-            const word = document.getElementById('searchInput').value.trim();
-            const status = document.getElementById('statusMessage');
+    async function fetchDictionary(word) {
+        // If it's a sentence, we look up the first word for the dictionary portion
+        const lookupWord = word.split(/\s+/)[0].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+        
+        try {
+            const res = await fetch(`https://www.sefaria.org/api/words/${encodeURIComponent(lookupWord)}`);
+            const data = await res.json();
             
-            if (!word) {
-                status.innerText = "Please enter a word or scan an image first.";
+            if (!data || data.length === 0) {
+                dictOutput.innerHTML = "<div class='card'>No direct dictionary entry found. Try searching for the root word.</div>";
                 return;
             }
 
-            status.innerText = "Fetching translations and sources...";
-            document.getElementById('results').style.display = 'block';
-            document.getElementById('translationOutput').innerHTML = "Loading...";
-            document.getElementById('sourcesOutput').innerHTML = "Loading...";
-
-            await fetchTranslation(word);
-            await fetchSources(word);
-            
-            status.innerText = "";
-        }
-
-        // 3. Sefaria Dictionary API
-        async function fetchTranslation(word) {
-            try {
-                const response = await fetch(`https://www.sefaria.org/api/words/${encodeURIComponent(word)}`);
-                const data = await response.json();
+            dictOutput.innerHTML = data.map(entry => {
+                // FIXED LOGIC: Robust parsing for different Sefaria dictionary formats
+                let definition = "";
                 
-                const outputDiv = document.getElementById('translationOutput');
-                outputDiv.innerHTML = "";
-
-                if (!data || data.length === 0) {
-                    outputDiv.innerHTML = "<p>No dictionary entries found for this word.</p>";
-                    return;
+                if (typeof entry.content === 'string') {
+                    definition = entry.content;
+                } else if (entry.content?.definition) {
+                    definition = entry.content.definition;
+                } else if (entry.content?.senses) {
+                    // Collect all definition senses
+                    definition = entry.content.senses.map(s => s.definition || "").join("; ");
+                } else if (entry.content?.sense?.definition) {
+                    definition = entry.content.sense.definition;
                 }
 
-                data.forEach(entry => {
-                    const lexicon = entry.lexicon_name || "Dictionary";
-                    // Extract text (Sefaria returns definitions inside 'content' arrays or objects depending on the lexicon)
-                    const definition = entry.content && entry.content.sense ? entry.content.sense.definition : JSON.stringify(entry.content);
-                    
-                    outputDiv.innerHTML += `
-                        <p><strong>${lexicon}:</strong> ${entry.headword}</p>
-                        <p>${definition}</p><hr>
-                    `;
-                });
+                // If still empty, show a fallback
+                if (!definition || definition === "undefined") {
+                    definition = "View full entry in Sefaria Lexicon.";
+                }
 
-            } catch (error) {
-                console.error("Dictionary error:", error);
-                document.getElementById('translationOutput').innerHTML = "<p>Error loading translation.</p>";
+                return `
+                    <div class="card">
+                        <span class="dict-badge">${entry.lexicon_name || 'Lexicon'}</span>
+                        <div class="word-title">${entry.headword}</div>
+                        <div style="color: #334155;">${definition}</div>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            dictOutput.innerHTML = "Error loading dictionary.";
+        }
+    }
+
+    async function fetchSources(query) {
+        try {
+            const res = await fetch('https://www.sefaria.org/api/search-wrapper', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: query,
+                    type: "text",
+                    size: 8
+                })
+            });
+            const data = await res.json();
+
+            if (!data.hits?.hits?.length) {
+                sourceOutput.innerHTML = "<div class='card'>No sources found in the library.</div>";
+                return;
             }
-        }
 
-        // 4. Sefaria Search API
-        async function fetchSources(word) {
-            try {
-                const response = await fetch('https://www.sefaria.org/api/search-wrapper', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        query: word,
-                        type: "text",
-                        size: 5 // Limits to top 5 results to keep the UI clean
-                    })
-                });
+            sourceOutput.innerHTML = data.hits.hits.map(hit => {
+                const ref = hit._source.ref;
+                const url = `https://www.sefaria.org/${ref.replace(/ /g, "_")}`;
                 
-                const data = await response.json();
-                const outputDiv = document.getElementById('sourcesOutput');
-                outputDiv.innerHTML = "";
+                // Use highlighted text if available, otherwise fallback to plain text
+                const snippet = hit.highlight?.exact?.join(' ... ') || hit._source.text || "Click to read full text";
 
-                if (!data.hits || !data.hits.hits || data.hits.hits.length === 0) {
-                    outputDiv.innerHTML = "<p>No sources found.</p>";
-                    return;
-                }
-
-                data.hits.hits.forEach(hit => {
-                    // Extract the reference (e.g., "Genesis 1:1") and the snippet
-                    const ref = hit._source.ref;
-                    const text = hit.highlight.exact ? hit.highlight.exact.join(' ... ') : "Text snippet unavailable";
-                    
-                    outputDiv.innerHTML += `
-                        <div class="source-item">
-                            <strong>${ref}</strong><br>
-                            <span dir="rtl">${text}</span>
+                return `
+                    <a href="${url}" target="_blank" class="card source-card">
+                        <div class="ref-tag">
+                            <span>${ref}</span>
+                            <span style="font-size: 0.7rem; opacity: 0.6;">READ ON SEFARIA ↗</span>
                         </div>
-                    `;
-                });
-
-            } catch (error) {
-                console.error("Search error:", error);
-                document.getElementById('sourcesOutput').innerHTML = "<p>Error loading sources.</p>";
-            }
+                        <span class="snippet">${snippet}</span>
+                    </a>
+                `;
+            }).join('');
+        } catch (e) {
+            sourceOutput.innerHTML = "Error loading sources.";
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
