@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sefaria & Jastrow Translator</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            direction: rtl; /* Right-to-left for Hebrew */
+        }
+        button, label.upload-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+            margin-right: 5px;
+            text-decoration: none;
+        }
+        button:hover, label.upload-btn:hover {
+            background-color: #0056b3;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .status {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .result-section {
+            margin-top: 20px;
+            display: none;
+        }
+        h3 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            color: #34495e;
+        }
+        .source-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #fdfdfd;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Hebrew/Aramaic Translator</h1>
+
+    <div class="card">
+        <input type="text" id="searchInput" placeholder="Enter Hebrew or Aramaic word...">
+        
+        <div>
+            <button onclick="performSearch()">Translate & Find</button>
+            <label class="upload-btn">
+                Scan Photo
+                <input type="file" accept="image/*" capture="environment" id="imageInput" onchange="processImage(event)">
+            </label>
+        </div>
+        
+        <div id="statusMessage" class="status"></div>
+    </div>
+
+    <div id="results" class="card result-section">
+        <h3>Dictionary Translation</h3>
+        <div id="translationOutput"></div>
+
+        <h3>Sources in Torah/Talmud</h3>
+        <div id="sourcesOutput"></div>
+    </div>
+
+    <script>
+        // 1. Photo Scanning Logic (OCR)
+        async function processImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const status = document.getElementById('statusMessage');
+            status.innerText = "Scanning image for Hebrew text... Please wait.";
+
+            try {
+                // Initialize Tesseract with Hebrew ('heb')
+                const result = await Tesseract.recognize(file, 'heb', {
+                    logger: m => console.log(m) // Logs progress to browser console
+                });
+                
+                // Clean up the text and put it in the search bar
+                const extractedText = result.data.text.trim().split(/\s+/)[0]; // Grabs the first word for simplicity
+                document.getElementById('searchInput').value = extractedText;
+                status.innerText = "Scan complete! Review the word and click Translate.";
+            } catch (error) {
+                console.error(error);
+                status.innerText = "Error scanning image. Please try again.";
+            }
+        }
+
+        // 2. Search Logic (Triggered by button)
+        async function performSearch() {
+            const word = document.getElementById('searchInput').value.trim();
+            const status = document.getElementById('statusMessage');
+            
+            if (!word) {
+                status.innerText = "Please enter a word or scan an image first.";
+                return;
+            }
+
+            status.innerText = "Fetching translations and sources...";
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('translationOutput').innerHTML = "Loading...";
+            document.getElementById('sourcesOutput').innerHTML = "Loading...";
+
+            await fetchTranslation(word);
+            await fetchSources(word);
+            
+            status.innerText = "";
+        }
+
+        // 3. Sefaria Dictionary API
+        async function fetchTranslation(word) {
+            try {
+                const response = await fetch(`https://www.sefaria.org/api/words/${encodeURIComponent(word)}`);
+                const data = await response.json();
+                
+                const outputDiv = document.getElementById('translationOutput');
+                outputDiv.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    outputDiv.innerHTML = "<p>No dictionary entries found for this word.</p>";
+                    return;
+                }
+
+                data.forEach(entry => {
+                    const lexicon = entry.lexicon_name || "Dictionary";
+                    // Extract text (Sefaria returns definitions inside 'content' arrays or objects depending on the lexicon)
+                    const definition = entry.content && entry.content.sense ? entry.content.sense.definition : JSON.stringify(entry.content);
+                    
+                    outputDiv.innerHTML += `
+                        <p><strong>${lexicon}:</strong> ${entry.headword}</p>
+                        <p>${definition}</p><hr>
+                    `;
+                });
+
+            } catch (error) {
+                console.error("Dictionary error:", error);
+                document.getElementById('translationOutput').innerHTML = "<p>Error loading translation.</p>";
+            }
+        }
+
+        // 4. Sefaria Search API
+        async function fetchSources(word) {
+            try {
+                const response = await fetch('https://www.sefaria.org/api/search-wrapper', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: word,
+                        type: "text",
+                        size: 5 // Limits to top 5 results to keep the UI clean
+                    })
+                });
+                
+                const data = await response.json();
+                const outputDiv = document.getElementById('sourcesOutput');
+                outputDiv.innerHTML = "";
+
+                if (!data.hits || !data.hits.hits || data.hits.hits.length === 0) {
+                    outputDiv.innerHTML = "<p>No sources found.</p>";
+                    return;
+                }
+
+                data.hits.hits.forEach(hit => {
+                    // Extract the reference (e.g., "Genesis 1:1") and the snippet
+                    const ref = hit._source.ref;
+                    const text = hit.highlight.exact ? hit.highlight.exact.join(' ... ') : "Text snippet unavailable";
+                    
+                    outputDiv.innerHTML += `
+                        <div class="source-item">
+                            <strong>${ref}</strong><br>
+                            <span dir="rtl">${text}</span>
+                        </div>
+                    `;
+                });
+
+            } catch (error) {
+                console.error("Search error:", error);
+                document.getElementById('sourcesOutput').innerHTML = "<p>Error loading sources.</p>";
+            }
+        }
+    </script>
+</body>
+</html>
