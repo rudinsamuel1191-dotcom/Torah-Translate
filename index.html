@@ -3,145 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Torah Lens: Advanced Translator</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <title>LingoTorah | Hebrew & Aramaic Lexicon</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .container { max-width: 500px; width: 100%; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h1 { font-size: 1.5rem; color: var(--primary); text-align: center; margin-bottom: 20px; }
-        textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 1.1rem; direction: rtl; box-sizing: border-box; resize: vertical; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        button, .upload-label { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; transition: 0.2s; }
-        button:hover { opacity: 0.9; }
-        .upload-label { background: var(--accent); }
-        input[type="file"] { display: none; }
-        #status { font-size: 0.9rem; color: #666; margin-top: 10px; text-align: center; }
-        .results-box { display: none; }
-        .result-item { border-bottom: 1px solid #eee; padding: 10px 0; }
-        .result-item:last-child { border: none; }
-        .tag { font-size: 0.7rem; text-transform: uppercase; background: #eee; padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 700px;
+            margin-top: 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin: 0;
+            letter-spacing: -1px;
+        }
+
+        p.subtitle {
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .search-card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+            direction: rtl;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        button:hover {
+            background: #1a252f;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            display: block;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .dict-entry {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .dict-name {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 0.8rem;
+        }
+
+        .source-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .source-card:hover {
+            background: #f1f5f9;
+        }
+
+        .source-link {
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .source-text {
+            display: block;
+            margin-top: 8px;
+            font-size: 1.1rem;
+            color: #475569;
+            direction: rtl;
+            line-height: 1.6;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .arrow-icon {
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="card">
-        <h1>Torah Lens</h1>
-        <textarea id="inputText" rows="3" placeholder="Type or scan text..."></textarea>
-        
-        <div id="status">Ready</div>
+<div class="app-container">
+    <header>
+        <h1>LingoTorah</h1>
+        <p class="subtitle">Search the Written & Oral Torah</p>
+    </header>
 
-        <div class="btn-group">
-            <label class="upload-label">
-                📷 Scan Page
-                <input type="file" accept="image/*" capture="environment" onchange="ocrProcess(this)">
-            </label>
-            <button onclick="handleTranslate()">Translate All</button>
+    <div class="search-card">
+        <div class="input-wrapper">
+            <input type="text" id="wordInput" placeholder="...הקלד מילה" autocomplete="off">
+            <button onclick="handleSearch()">Search</button>
         </div>
-        <button style="width:100%; margin-top:10px; background:#27ae60;" onclick="handleSefariaLookup()">Dictionary & Sources</button>
+        <div id="status" style="margin-top: 10px; font-size: 0.8rem; color: #94a3b8; text-align: center;"></div>
     </div>
 
-    <div id="results" class="card results-box">
-        <div id="outputContent"></div>
+    <div id="results">
+        <span class="section-title">Dictionary Results</span>
+        <div id="dictOutput"></div>
+
+        <span class="section-title" style="margin-top: 30px;">Textual Sources</span>
+        <div id="sourceOutput"></div>
     </div>
 </div>
 
 <script>
+    const wordInput = document.getElementById('wordInput');
     const status = document.getElementById('status');
-    const inputText = document.getElementById('inputText');
-    const results = document.getElementById('results');
-    const output = document.getElementById('outputContent');
+    const resultsArea = document.getElementById('results');
+    const dictOutput = document.getElementById('dictOutput');
+    const sourceOutput = document.getElementById('sourceOutput');
 
-    // 1. IMPROVED OCR LOGIC
-    async function ocrProcess(input) {
-        if (!input.files[0]) return;
-        status.innerText = "⏳ Processing Image... (This takes 10-20 seconds)";
-        
+    // Allow pressing "Enter" to search
+    wordInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") handleSearch();
+    });
+
+    async function handleSearch() {
+        const query = wordInput.value.trim();
+        if (!query) return;
+
+        // Reset UI
+        status.innerText = "Searching Sefaria & Jastrow...";
+        resultsArea.style.display = "block";
+        dictOutput.innerHTML = '<div class="loading-spinner">Fetching definitions...</div>';
+        sourceOutput.innerHTML = '<div class="loading-spinner">Locating sources...</div>';
+
         try {
-            const worker = await Tesseract.createWorker('heb');
-            const { data: { text } } = await worker.recognize(input.files[0]);
-            await worker.terminate();
-            
-            inputText.value = text;
-            status.innerText = "✅ Scan Complete!";
-        } catch (e) {
-            status.innerText = "❌ Error: Try a clearer photo";
-            console.error(e);
+            await Promise.all([
+                fetchDictionary(query),
+                fetchSources(query)
+            ]);
+            status.innerText = "Search complete.";
+        } catch (error) {
+            status.innerText = "An error occurred. Please try again.";
+            console.error(error);
         }
     }
 
-    // 2. SENTENCE TRANSLATION (Uses a Free Google Translate Proxy)
-    async function handleTranslate() {
-        const text = inputText.value.trim();
-        if (!text) return;
+    async function fetchDictionary(word) {
+        const res = await fetch(`https://www.sefaria.org/api/words/${encodeURIComponent(word)}`);
+        const data = await res.json();
         
-        status.innerText = "🌐 Translating Sentence...";
-        results.style.display = 'block';
-        output.innerHTML = "Translating...";
-
-        try {
-            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=iw&tl=en&dt=t&q=${encodeURI(text)}`);
-            const data = await res.json();
-            const translatedText = data[0].map(x => x[0]).join(' ');
-            
-            output.innerHTML = `<div><strong>English Translation:</strong><p>${translatedText}</p></div>`;
-            status.innerText = "Done!";
-        } catch (e) {
-            output.innerHTML = "Error connecting to translation engine.";
+        if (!data || data.length === 0) {
+            dictOutput.innerHTML = "<p>No dictionary entries found.</p>";
+            return;
         }
+
+        dictOutput.innerHTML = data.map(entry => `
+            <div class="dict-entry">
+                <div class="dict-name">${entry.lexicon_name}</div>
+                <div style="font-size: 1.2rem; margin: 5px 0;"><strong>${entry.headword}</strong></div>
+                <div style="line-height: 1.4; color: #475569;">
+                    ${entry.content.definition || "No definition snippet available."}
+                </div>
+            </div>
+        `).join('');
     }
 
-    // 3. SEFARIA LOOKUP (Dictionary & Sources)
-    async function handleSefariaLookup() {
-        const text = inputText.value.trim();
-        if (!text) return;
+    async function fetchSources(word) {
+        const res = await fetch('https://www.sefaria.org/api/search-wrapper', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: word, type: "text", size: 8 })
+        });
+        const data = await res.json();
 
-        // If it's a sentence, we just look up the first word for the dictionary
-        const word = text.split(/\s+/)[0].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
-        
-        status.innerText = "📚 Searching Sefaria...";
-        results.style.display = 'block';
-        output.innerHTML = "Fetching Dictionary & Sources...";
-
-        try {
-            // Get Dictionary
-            const dictRes = await fetch(`https://www.sefaria.org/api/words/${encodeURIComponent(word)}`);
-            const dictData = await dictRes.json();
-            
-            // Get Sources
-            const sourceRes = await fetch('https://www.sefaria.org/api/search-wrapper', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: word, type: "text", size: 3 })
-            });
-            const sourceData = await sourceRes.json();
-
-            let html = `<h4>Dictionary: ${word}</h4>`;
-            if (dictData.length > 0) {
-                dictData.slice(0, 2).forEach(e => {
-                    html += `<div class="result-item"><span class="tag">${e.lexicon_name}</span><br>${e.content.definition || 'See entry'}</div>`;
-                });
-            } else {
-                html += "<p>No exact dictionary match.</p>";
-            }
-
-            html += `<h4>Top Sources</h4>`;
-            if (sourceData.hits.hits.length > 0) {
-                sourceData.hits.hits.forEach(h => {
-                    html += `<div class="result-item"><strong>${h._source.ref}</strong><br><small>${h._source.text}</small></div>`;
-                });
-            } else {
-                html += "<p>No sources found.</p>";
-            }
-
-            output.innerHTML = html;
-            status.innerText = "Results updated!";
-        } catch (e) {
-            output.innerHTML = "Error fetching Sefaria data.";
+        if (!data.hits || data.hits.hits.length === 0) {
+            sourceOutput.innerHTML = "<p>No matches found in the library.</p>";
+            return;
         }
+
+        sourceOutput.innerHTML = data.hits.hits.map(hit => {
+            const ref = hit._source.ref;
+            const url = `https://www.sefaria.org/${ref.replace(/ /g, "_")}`;
+            const snippet = hit.highlight && hit.highlight.exact 
+                ? hit.highlight.exact.join(' ... ') 
+                : (hit._source.text || "View full text");
+
+            return `
+                <div class="source-card">
+                    <a href="${url}" target="_blank" class="source-link">
+                        <span>${ref}</span>
+                        <span class="arrow-icon">OPEN IN SEFARIA ↗</span>
+                    </a>
+                    <span class="source-text">${snippet}</span>
+                </div>
+            `;
+        }).join('');
     }
 </script>
+
 </body>
 </html>
